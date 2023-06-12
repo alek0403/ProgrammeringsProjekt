@@ -1,0 +1,117 @@
+uint8_t bit=0;
+
+  joyStick(){
+
+			// enabler clock for port A, B og C.
+			RCC->AHBENR |= RCC_AHBPeriph_GPIOA; // Enable clock for GPIO Port A
+			RCC->AHBENR |= RCC_AHBPeriph_GPIOB; // Enable clock for GPIO Port B.
+			RCC->AHBENR |= RCC_AHBPeriph_GPIOC; // Enable clock for GPIO Port C.
+
+			// sætter port C0 op til input (right);
+			GPIOC -> MODER &= ~(0x00000003 << (0 * 2));
+			GPIOC -> MODER |= (0x00000000 << (0 * 2));
+			GPIOC -> PUPDR &= ~(0x00000003 << (0 * 2));
+			GPIOC -> PUPDR |= (0x00000002 << (0 * 2));
+
+			// sætter port A4 op til input (up);
+			GPIOA -> MODER &= ~(0x00000003 << (4 * 2));
+			GPIOA -> MODER |= (0x00000000 << (4 * 2));
+			GPIOA -> PUPDR &= ~(0x00000003 << (4 * 2));
+			GPIOA -> PUPDR |= (0x00000002 << (4 * 2));
+
+			// sætter port B5 op til input (center);
+			GPIOB -> MODER &= ~(0x00000003 << (5 * 2));
+			GPIOB -> MODER |= (0x00000000 << (5 * 2));
+			GPIOB -> PUPDR &= ~(0x00000003 << (5 * 2));
+			GPIOB -> PUPDR |= (0x00000002 << (5 * 2));
+
+			// sætter port C1 op til input (left);
+			GPIOC -> MODER &= ~(0x00000003 << (1 * 2));
+			GPIOC -> MODER |= (0x00000000 << (1 * 2));
+			GPIOC -> PUPDR &= ~(0x00000003 << (1 * 2));
+			GPIOC -> PUPDR |= (0x00000002 << (1 * 2));
+
+			// sætter port B0 op til input (down);
+			GPIOB -> MODER &= ~(0x00000003 << (0 * 2));
+			GPIOB -> MODER |= (0x00000000 << (0 * 2));
+			GPIOB -> PUPDR &= ~(0x00000003 << (0 * 2));
+			GPIOB -> PUPDR |= (0x00000002 << (0 * 2));
+
+
+			while(1){
+			uint16_t val0 = GPIOA->IDR & (0x0001 << 4); //Read from up
+			uint16_t val1 = GPIOB->IDR & (0x0001 << 0); //Read from down
+			uint16_t val2 = GPIOC->IDR & (0x0001 << 1); //Read from left
+			uint16_t val3 = GPIOC->IDR & (0x0001 << 0); //Read from right
+			uint16_t val4 = GPIOB->IDR & (0x0001 << 5); //Read from center
+
+			bit =0;
+
+			val0 = val0>>4;
+			val2 = val2>>1;
+			val4 = val4>>5;
+
+			bit |= val0<<0;
+			bit |= val1<<1;
+			bit |= val2<<2;
+			bit |= val3<<3;
+			bit |= val4<<4;
+
+			return bit;
+
+			}
+ }
+
+  setLED(){
+
+  RCC->AHBENR |= RCC_AHBPeriph_GPIOA; // Enable clock for GPIO Port A
+  			RCC->AHBENR |= RCC_AHBPeriph_GPIOB; // Enable clock for GPIO Port B.
+  			RCC->AHBENR |= RCC_AHBPeriph_GPIOC; // Enable clock for GPIO Port C.
+
+  	// Set pin PB4 to output (RED)
+  			GPIOB->OSPEEDR 	&= ~(0x00000003 << (4 * 2));
+  			GPIOB->OSPEEDR 	|= (0x00000002 << (4 * 2));
+  			GPIOB->OTYPER 	&= ~(0x0001 << (4 * 1));
+  			GPIOB->OTYPER 	|= (0x0000 << (1));
+  			GPIOB->MODER 	&= ~(0x00000003 << (4 * 2));
+  			GPIOB->MODER 	|= (0x00000001 << (4 * 2));
+
+
+  			// Set pin PC7 to output (GREEN)
+  			GPIOC->OSPEEDR 	&= ~(0x00000003 << (7 * 2));
+  			GPIOC->OSPEEDR 	|= (0x00000002 << (7 * 2));
+  			GPIOC->OTYPER 	&= ~(0x0001 << (7 * 1));
+  			GPIOC->OTYPER 	|= (0x0000 << (1));
+  			GPIOC->MODER 	&= ~(0x00000003 << (7 * 2));
+  			GPIOC->MODER 	|= (0x00000001 << (7 * 2));
+
+
+  			// Set pin PA9 to output (BLUE)
+  			GPIOA->OSPEEDR 	&= ~(0x00000003 << (9 * 2));
+  			GPIOA->OSPEEDR 	|= (0x00000002 << (9 * 2));
+  			GPIOA->OTYPER 	&= ~(0x0001 << (9 * 1));
+  			GPIOA->OTYPER 	|= (0x0000 << (1));
+  			GPIOA->MODER 	&= ~(0x00000003 << (9 * 2));
+  			GPIOA->MODER 	|= (0x00000001 << (9 * 2));
+
+
+
+  	while(1){
+
+  		uint8_t number = joyStick(bit);
+  			if(number==1){
+  				GPIOB->BSRR |= (0x0001 << 4+16);
+  		}
+  			if(number==2){
+  					GPIOC->BSRR |= (0x0001 << 7+16);
+  				}
+
+  		 	if(number==4){
+  					GPIOA->BSRR |= (0x0001 << 9+16);
+  				}
+
+  		GPIOC->BSRR |= (0x0001 << 7);
+  		GPIOA->BSRR |= (0x0001 << 9);
+  		GPIOB->BSRR |= (0x0001 << 4);
+
+  	}

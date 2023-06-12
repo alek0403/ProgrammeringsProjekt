@@ -1,0 +1,142 @@
+#include "stm32f30x_conf.h" // STM32 config
+#include "30010_io.h" // Input/output library for this course
+#include "ansi.h"
+#include "Lut1.h"
+
+ struct tick{
+	volatile uint8_t msec;
+	volatile uint8_t sec;
+	volatile uint8_t min;
+	volatile uint8_t h;
+};
+
+ struct tick ticks;
+
+ joyStick(bit){
+
+			// enabler clock for port A, B og C.
+			RCC->AHBENR |= RCC_AHBPeriph_GPIOA; // Enable clock for GPIO Port A
+			RCC->AHBENR |= RCC_AHBPeriph_GPIOB; // Enable clock for GPIO Port B.
+			RCC->AHBENR |= RCC_AHBPeriph_GPIOC; // Enable clock for GPIO Port C.
+
+			// sætter port C0 op til input (right);
+			GPIOC -> MODER &= ~(0x00000003 << (0 * 2));
+			GPIOC -> MODER |= (0x00000000 << (0 * 2));
+			GPIOC -> PUPDR &= ~(0x00000003 << (0 * 2));
+			GPIOC -> PUPDR |= (0x00000002 << (0 * 2));
+
+			// sætter port A4 op til input (up);
+			GPIOA -> MODER &= ~(0x00000003 << (4 * 2));
+			GPIOA -> MODER |= (0x00000000 << (4 * 2));
+			GPIOA -> PUPDR &= ~(0x00000003 << (4 * 2));
+			GPIOA -> PUPDR |= (0x00000002 << (4 * 2));
+
+			// sætter port B5 op til input (center);
+			GPIOB -> MODER &= ~(0x00000003 << (5 * 2));
+			GPIOB -> MODER |= (0x00000000 << (5 * 2));
+			GPIOB -> PUPDR &= ~(0x00000003 << (5 * 2));
+			GPIOB -> PUPDR |= (0x00000002 << (5 * 2));
+
+			// sætter port C1 op til input (left);
+			GPIOC -> MODER &= ~(0x00000003 << (1 * 2));
+			GPIOC -> MODER |= (0x00000000 << (1 * 2));
+			GPIOC -> PUPDR &= ~(0x00000003 << (1 * 2));
+			GPIOC -> PUPDR |= (0x00000002 << (1 * 2));
+
+			// sætter port B0 op til input (down);
+			GPIOB -> MODER &= ~(0x00000003 << (0 * 2));
+			GPIOB -> MODER |= (0x00000000 << (0 * 2));
+			GPIOB -> PUPDR &= ~(0x00000003 << (0 * 2));
+			GPIOB -> PUPDR |= (0x00000002 << (0 * 2));
+
+
+			while(1){
+			uint16_t val0 = GPIOA->IDR & (0x0001 << 4); //Read from up
+			uint16_t val1 = GPIOB->IDR & (0x0001 << 0); //Read from down
+			uint16_t val2 = GPIOC->IDR & (0x0001 << 1); //Read from left
+			uint16_t val3 = GPIOC->IDR & (0x0001 << 0); //Read from right
+			uint16_t val4 = GPIOB->IDR & (0x0001 << 5); //Read from center
+
+			bit =0;
+
+			val0 = val0>>4;
+			val2 = val2>>1;
+			val4 = val4>>5;
+
+			bit |= val0<<0;
+			bit |= val1<<1;
+			bit |= val2<<2;
+			bit |= val3<<3;
+			bit |= val4<<4;
+
+			return bit;
+
+			}
+}
+
+
+void TIM1_BRK_TIM15_IRQHandler(void){
+
+		ticks.msec++;
+		if(ticks.msec==100){
+			ticks.msec=0;
+			ticks.sec++;
+		}
+
+		if(ticks.sec==60){
+			ticks.sec=0;
+			ticks.min++;
+		}
+
+		if(ticks.min==60){
+			ticks.min=0;
+			ticks.h++;
+		}
+
+		TIM15->SR &= ~0x0001;
+}
+
+
+int main(void){
+	uart_init(9600);
+	uint8_t count = 0;
+	uint8_t count1 = 0;
+
+	RCC->APB2ENR |= RCC_APB2Periph_TIM15; // Enable clock line to timer 15;
+		TIM15->CR1 = 0x0001; // Configure timer 15
+		TIM15->ARR = 908; // Set reload value
+		TIM15->PSC = 999; // Set prescale value
+		TIM15->DIER |= 0x0001;
+		NVIC_SetPriority(TIM1_BRK_TIM15_IRQn, 0); // Set interrupt priority
+		NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
+		NVIC_DisableIRQ(TIM1_BRK_TIM15_IRQn);
+
+	while(1){
+		uint8_t test = joyStick(0);
+		TIM1_BRK_TIM15_IRQHandler();
+		gotoxy(0,0);
+		printf("hs %d, sec %d, min %d, timer, %d",ticks.msec,ticks.sec,ticks.min,ticks.h);
+		gotoxy(0,4);
+		printf("%d\n",test);
+
+		if(test == 4 && count == 0){
+			count++;
+			gotoxy(0,10);
+			printf("split 1: hs %d, sec %d, min %d, timer, %d",ticks.msec,ticks.sec,ticks.min,ticks.h);
+		}
+
+		if(test == 8 && count1 == 0){
+			count1++;
+			gotoxy(0,12);
+			printf("split 2: hs %d, sec %d, min %d, timer, %d",ticks.msec,ticks.sec,ticks.min,ticks.h);
+		}
+
+		if(test == 2){
+			ticks.msec=0;
+			ticks.sec=0;
+			ticks.min=0;
+			ticks.h=0;
+		}
+	}
+
+}

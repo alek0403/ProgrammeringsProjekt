@@ -1,0 +1,47 @@
+#include "stm32f30x_conf.h" // STM32 config
+#include "30010_io.h" // Input/output library for this course
+#include "ansi.h"
+#include "Lut1.h"
+
+
+void readfromflash(uint16_t offset){
+
+	 uint32_t baseAddress = 0x0800F800+offset;
+	 uint16_t val;
+	 for ( int i = 0 ; i < 10 ; i++ ){
+	 val = *(uint16_t *)((baseAddress) + i * 2); // Read Command
+	 printf("%d \n",val);
+
+	 }
+ }
+
+ void storedata(uint16_t offset){
+
+	 uint32_t baseAddress = 0x0800F800+offset;
+	 FLASH_Unlock();
+	 FLASH_ClearFlag( FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR );
+
+
+	 FLASH_ErasePage(baseAddress);
+	 FLASH_ProgramHalfWord(baseAddress, 10000);
+
+	 FLASH_Lock();
+
+ }
+
+
+int main(void){
+	uart_init(9600);
+
+	storedata(0);
+	//storedata(1);
+
+	while(1){
+
+		gotoxy(0,0);
+		readfromflash(0);
+
+
+	}
+
+}

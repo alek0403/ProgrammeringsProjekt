@@ -1,0 +1,94 @@
+#include "stm32f30x_conf.h" // STM32 config
+#include "30010_io.h" // Input/output library for this course
+#include "ansi.h"
+#include "Lut1.h"
+
+typedef struct{
+		uint32_t x;
+		uint32_t y;
+	} coordinates;
+
+typedef struct{
+		int32_t x;
+		int32_t y;
+		int32_t vx;
+		int32_t vy;
+		int l;
+	} ballcoor;
+
+
+
+void ballCalc(ballcoor*jesus){
+	uint8_t count = 0;
+	uint32_t k = 1;
+	jesus->x = jesus->x+jesus->vx*k;
+	jesus->y = jesus->y+jesus->vy*k;
+
+	//if(jesus->vx >= 50 || jesus->vx <= 0 || jesus->vy >= 50 || jesus->vy <= 0 ){
+		count +=1;
+	//if(jesus->vx == 0 || jesus->vx == 175){
+	//	jesus->vx=-jesus->vx;
+	//}
+
+	if(jesus->y==150){
+		jesus->vy=-1;
+	}
+
+	if(jesus->x== 0 || jesus->x==150){
+		jesus->vx=-1;
+	} else {
+		jesus->vx=1;
+	}
+
+	//jesus->x=jesus->vx*k;
+	//jesus->y=jesus->vy*k;
+
+	//gotoxy(10,10);
+	//printf("%d",count);
+}
+
+void draw(ballcoor*jesus){
+	gotoxy(jesus->x,jesus->y);
+	printf("o");
+}
+
+void initializeVector(coordinates*vej, int32_t x, int32_t y) {
+    vej->x = x;
+    vej->y = y;
+}
+
+void rotateVector(coordinates*vej,uint32_t v){
+	   int32_t newX = vej->y;
+	   int32_t newY = vej->x;
+
+	  initializeVector(vej, newX, newY);
+
+	     (*vej).x = (vej->x) * COSINUS(v) - (vej->y) * SINUS(v);
+	     (*vej).y = (vej->x) * SINUS(v) + (vej->y) * COSINUS(v);
+
+}
+
+
+int main(void){
+	uart_init(9600);
+	//printFix(expand(COSINUS(64)));
+	int a =1;
+
+	window2(0,0,150,150,1);
+	window2(30,20,45,23,1);
+
+	ballcoor bold;
+	bold.x = 30;
+	bold.y = 30;
+	bold.vx = 1;
+	bold.vy = 1;
+	int i;
+
+	for(i=0;i<50;i++){
+		draw(&bold);
+		ballCalc(&bold);
+		draw(&bold);
+	}
+
+	while(1){}
+}

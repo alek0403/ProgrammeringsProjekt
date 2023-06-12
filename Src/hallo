@@ -1,0 +1,214 @@
+void window(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, char c[], uint8_t type){
+
+	uint8_t Hl = 0;
+	uint8_t Vl = 0;
+	uint8_t RTC = 0;
+	uint8_t RBC = 0;
+	uint8_t LBC = 0;
+	uint8_t LTC = 0;
+	uint8_t RE = 0;
+	uint8_t LE = 0;
+
+	if(type == 0){
+
+		Hl = 196;
+		Vl = 179;
+		RTC = 191;
+		RBC = 217;
+		LBC = 192;
+		LTC = 218;
+		RE = 195;
+		LE = 180;
+
+	}else{
+			Hl = 205;
+			Vl = 186;
+			RTC = 187;
+			RBC = 188;
+			LBC = 200;
+			LTC = 201;
+			RE = 204;
+			LE = 185;
+	}
+
+	//bundlinje
+
+
+
+	uint8_t i = x1;
+		for(i;i<=x2-1;i++){
+			gotoxy(i,y2);
+			printf("%c",Hl);
+			gotoxy(i,y1);
+			printf("%c",Hl);
+		}
+
+	uint8_t j = y1;
+		for(j;j<y2;j++){
+			gotoxy(x1,j);
+			printf("%c",Vl);
+			gotoxy(x2,j);
+			printf("%c",Vl);
+		}
+
+		gotoxy(x1,y2);
+				printf("%c",LBC);
+
+		gotoxy(x2,y1);
+			printf("%c",RTC);
+
+		gotoxy(x1,y1);
+				printf("%c",LTC);
+
+		gotoxy(x2,y2);
+			printf("%c",RBC);
+
+
+		gotoxy(x1+4,y1);
+			printf("%c",LE);
+			inverse(1);
+			printf("%s",c);
+			inverse(0);
+			printf("%c",RE);
+}
+
+void tegn(){
+	printf("%c",33);
+}
+
+
+
+void printFix(int32_t i) {
+// Prints a signed 16.16 fixed point number
+if ((i & 0x80000000) != 0) { // Handle negative numbers
+printf("-");
+i = ~i + 1;
+}
+printf("%ld.%04ld", i >> 16, 10000 * (uint32_t)(i & 0xFFFF) >> 16);
+// Print a maximum of 4 decimal digits to avoid overflow
+}
+
+int32_t expand(int32_t i) {
+// Converts an 18.14 fixed point number to 16.16
+return i << 2;
+}
+
+int32_t SINUS(int32_t a){
+	if(a<=0){
+		if(a<=512 & a>=0){
+			int32_t sin1 = expand(SIN[a]);
+			return SIN[a];
+		} else {
+			while (a>512){
+				a=a-(a/512)*512;
+			}
+			return SIN[a];
+		}
+	}
+	else{ // hvis sinus er under 0 grader og ikke over 360.
+			a = a + 512;
+			if(a<=512 & a>=0){
+				int32_t sin1 = expand(SIN[a]);
+				return SIN[a];
+						}
+			else{ // hvis sinus er over 360 grader skal vi finde antal omdrejninger.
+				while(a>512){
+					a = a - (a/512)*512;
+				}
+				return SIN[a];
+			}
+		}
+}
+
+int32_t COSINUS(int32_t a){
+	if(a>=0){
+		a = a + 128;
+		if(a<=512 & a<=0){
+			int32_t cos1 = expand(SIN[a]);
+		} else {
+			while (a>512){
+				a = a - (a/512)*512;
+			}
+			return SIN[a];
+		}
+	} else {
+		a = a*(-1);
+		a = a + 128;
+		if(a<=512 & a>=0){
+			int32_t cos1 = expand(SIN[a]);
+			return SIN[a];
+		} else {
+			while (a>512){
+				a = a - (a/512)*512;
+			}
+			return SIN[a];
+		}
+	}
+}
+
+void window2(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t type){
+
+	uint8_t Hl = 0;
+	uint8_t Vl = 0;
+	uint8_t RTC = 0;
+	uint8_t RBC = 0;
+	uint8_t LBC = 0;
+	uint8_t LTC = 0;
+	uint8_t RE = 0;
+	uint8_t LE = 0;
+
+	if(type == 0){
+
+		Hl = 196;
+		Vl = 179;
+		RTC = 191;
+		RBC = 217;
+		LBC = 192;
+		LTC = 218;
+		RE = 195;
+		LE = 180;
+
+	}else{
+			Hl = 205;
+			Vl = 186;
+			RTC = 187;
+			RBC = 188;
+			LBC = 200;
+			LTC = 201;
+			RE = 204;
+			LE = 185;
+	}
+
+	//bundlinje
+
+
+
+	uint8_t i = x1;
+		for(i;i<=x2-1;i++){
+			gotoxy(i,y2);
+			printf("%c",Hl);
+			gotoxy(i,y1);
+			printf("%c",Hl);
+		}
+
+	uint8_t j = y1;
+		for(j;j<y2;j++){
+			gotoxy(x1,j);
+			printf("%c",Vl);
+			gotoxy(x2,j);
+			printf("%c",Vl);
+		}
+
+		gotoxy(x1,y2);
+				printf("%c",LBC);
+
+		gotoxy(x2,y1);
+			printf("%c",RTC);
+
+		gotoxy(x1,y1);
+				printf("%c",LTC);
+
+		gotoxy(x2,y2);
+			printf("%c",RBC);
+
+}

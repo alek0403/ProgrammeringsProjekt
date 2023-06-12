@@ -5,7 +5,7 @@
 
 // funktion der tager en string og en position i bufferen fra 0-512 og indsætter stringen på den position.
 void lcd_write_string(char* string, uint8_t line, uint8_t* graphics_buffer) {
-  uint8_t buffer_index = line * 5; // Each character is 5 slices wide
+  uint8_t buffer_index = line; // Each character is 5 slices wide
   uint8_t char_index;
 
   while (*string) {
@@ -13,7 +13,7 @@ void lcd_write_string(char* string, uint8_t line, uint8_t* graphics_buffer) {
 
     // Copy character data from the character map to the graphics buffer
     for (uint8_t i = 0; i < 5; i++) {
-      graphics_buffer[buffer_index + i] = character_data[char_index][i];
+      graphics_buffer[buffer_index+ i] = character_data[char_index][i];
     }
 
     buffer_index += 5; // Move to the next character in the buffer
@@ -69,3 +69,38 @@ void lcd_scroll_text(const char* text, uint8_t* graphics_buffer, uint8_t scroll_
         }
     }
 }
+
+void LCD_liv(uint8_t *liv, uint8_t* graphics_buffer){
+	lcd_write_string("liv",0, graphics_buffer);
+	if(liv = 0){
+		lcd_write_string("1",130, graphics_buffer);
+	}
+	if(liv = 1){
+		lcd_write_string("2",130, graphics_buffer);
+	}
+	if(liv = 2){
+		lcd_write_string("3",130, graphics_buffer);
+	}
+}
+
+void LCD_LVL(uint8_t *lvl, uint8_t* graphics_buffer){
+	lcd_write_string("lvl",50, graphics_buffer);
+	if(lvl = 0){
+		lcd_write_string("0",180, graphics_buffer);
+	}
+	if(lvl = 1){
+		lcd_write_string("1",180, graphics_buffer);
+	}
+	if(lvl = 2){
+		lcd_write_string("2",180, graphics_buffer);
+	}
+}
+
+void LCD_Score(uint8_t *score, uint8_t* graphics_buffer){
+	char str[100];
+	sprintf(str, "%d", score);
+	lcd_write_string("score", 100, graphics_buffer);
+	lcd_write_string(str, 230, graphics_buffer);
+
+}
+

@@ -59,3 +59,21 @@ readyJoystick(){ //reads the value of the joystick and assigns it to jsBit at th
 		jsBit |= 1 << 4;}
 	return jsBit;
 }
+
+void readBit(){
+	if((readyJoystick(bit) & (1 << 0)) > 0){
+		printf("UP!\n");
+	}
+	if((readyJoystick(bit) & (1 << 1)) > 0){
+			printf("DOWN!\n");
+		}
+	if((readyJoystick(bit) & (1 << 2)) > 0){
+			printf("LEFT!\n");
+		}
+	if((readyJoystick(bit) & (1 << 3)) > 0){
+			printf("RIGHT\n");
+		}
+	if((readyJoystick(bit) & (1 << 4)) > 0){
+			printf("CENTER!\n");
+		}
+}
